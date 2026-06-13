@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#150E09" id="theme-color-meta" />
+  <title>The Vault · High Dive · Harrisburg, PA</title>
+  <meta name="description" content="The High Dive vault — every bottle behind the bar, with flavor notes, prices, and what each one is best in. 226 bottles across 11 shelves." />
+
+  <!-- Favicon & touch icon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+
+  <!-- Open Graph / social sharing -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://highdivevault.com/" />
+  <meta property="og:title" content="The Vault · High Dive · Harrisburg, PA" />
+  <meta property="og:description" content="Every bottle behind the bar — what it tastes like, and what it's best in. 226 bottles across 11 shelves." />
+  <meta property="og:image" content="https://highdivevault.com/assets/og-card.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The Vault · High Dive · Harrisburg, PA" />
+  <meta name="twitter:description" content="Every bottle behind the bar — what it tastes like, and what it's best in. 226 bottles across 11 shelves." />
+  <meta name="twitter:image" content="https://highdivevault.com/assets/og-card.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,18..72,400;0,18..72,500;1,18..72,400&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <script>
+    (function () {
+      var saved = localStorage.getItem('vaultTheme') || 'auto';
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var active = saved === 'auto' ? (prefersDark ? 'dark' : 'light') : saved;
+      document.documentElement.dataset.theme = active;
+      document.documentElement.dataset.themeChoice = saved;
+    })();
+  </script>
+  <link rel="stylesheet" href="vault-styles.css" />
+</head>
+<body>
+
+  <header id="topbar">
+    <button class="brand" aria-label="High Dive — home">
+      <img src="assets/highdive-logo.png" alt="High Dive" />
+      <span class="vlabel">The&nbsp;Vault</span>
+    </button>
+    <div class="spacer"></div>
+    <div class="theme-switcher" role="group" aria-label="Theme selector">
+      <button class="theme-choice" type="button" data-theme-choice="auto" aria-label="Use phone theme setting">Auto</button>
+      <button class="theme-choice" type="button" data-theme-choice="light" aria-label="Use light theme">Light</button>
+      <button class="theme-choice" type="button" data-theme-choice="dark" aria-label="Use dark theme">Dark</button>
+    </div>
+    <button class="icon-btn" id="topbar-search" aria-label="Search the vault">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    </button>
+  </header>
+
+  <main id="app" role="main"></main>
+
+  <!-- Detail sheet -->
+  <div id="scrim"></div>
+  <section id="sheet" role="dialog" aria-modal="true" aria-label="Bottle details"></section>
+
+  <!-- Search -->
+  <section id="search-view" aria-label="Search the vault">
+    <div class="search-head">
+      <svg class="s-ico" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search-input" type="search" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Search bottles, flavors, cocktails…" />
+      <button class="search-cancel" id="search-cancel">Done</button>
+    </div>
+    <div class="search-scroll">
+      <div class="search-meta" id="search-meta"></div>
+      <div id="search-results"></div>
+    </div>
+  </section>
+
+  <script src="vault-data.js"></script>
+  <script src="vault-app.js"></script>
+
+  <script>
+    (function () {
+      var DARK_COLOR = '#150E09';
+      var LIGHT_COLOR = '#F4ECDC';
+      var LOGO_DARK_THEME = 'assets/highdive-logo-full.png';
+      var LOGO_LIGHT_THEME = 'assets/highdive-logo-dark.png';
+      var HEADER_DARK_THEME = 'assets/highdive-logo.png';
+      var HEADER_LIGHT_THEME = 'assets/highdive-logo-dark.png';
+      var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+      var meta = document.getElementById('theme-color-meta');
+
+      function choice() { return localStorage.getItem('vaultTheme') || 'auto'; }
+      function activeTheme() {
+        var c = choice();
+        if (c === 'light' || c === 'dark') return c;
+        return media && media.matches ? 'dark' : 'light';
+      }
+      function setLogo(root) {
+        var theme = activeTheme();
+        var imgs = [];
+        if (root && root.matches && root.matches('img')) imgs.push(root);
+        if (root && root.querySelectorAll) imgs = imgs.concat([].slice.call(root.querySelectorAll('img')));
+        imgs.forEach(function (img) {
+          var cls = img.getAttribute('class') || '';
+          var src = img.getAttribute('src') || '';
+          if (cls.indexOf('logo') !== -1) img.src = theme === 'dark' ? LOGO_DARK_THEME : LOGO_LIGHT_THEME;
+          else if (/highdive-logo/.test(src)) img.src = theme === 'dark' ? HEADER_DARK_THEME : HEADER_LIGHT_THEME;
+        });
+      }
+      function applyTheme(c) {
+        if (!c) c = choice();
+        localStorage.setItem('vaultTheme', c);
+        var active = activeTheme();
+        document.documentElement.dataset.theme = active;
+        document.documentElement.dataset.themeChoice = c;
+        if (meta) meta.setAttribute('content', active === 'dark' ? DARK_COLOR : LIGHT_COLOR);
+        [].forEach.call(document.querySelectorAll('.theme-choice'), function (btn) {
+          btn.classList.toggle('active', btn.dataset.themeChoice === c);
+          btn.setAttribute('aria-pressed', btn.dataset.themeChoice === c ? 'true' : 'false');
+        });
+        setLogo(document);
+      }
+      window.applyVaultTheme = applyTheme;
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('.theme-choice');
+        if (btn) applyTheme(btn.dataset.themeChoice);
+      });
+      if (media) {
+        var onChange = function () { if (choice() === 'auto') applyTheme('auto'); };
+        if (media.addEventListener) media.addEventListener('change', onChange);
+        else if (media.addListener) media.addListener(onChange);
+      }
+      new MutationObserver(function (muts) {
+        muts.forEach(function (m) {
+          [].forEach.call(m.addedNodes, function (n) { if (n.nodeType === 1) setLogo(n); });
+        });
+      }).observe(document.body, { childList: true, subtree: true });
+      applyTheme(choice());
+    })();
+  </script>
+</body>
+</html>
